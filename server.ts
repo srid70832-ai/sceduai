@@ -1,6 +1,8 @@
 import express from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
+import cors from 'cors';
+import { createClient } from '@supabase/supabase-js';
 import { db } from './server/db.js';
 import { calculateStudentAnalytics, calculateTeacherAnalytics, calculateAdminAnalytics } from './server/analytics.js';
 import { generateStudentAIRecommendations, generateTeacherClassInsights, askAITutorCourseQuery } from './server/gemini.js';
