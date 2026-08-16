@@ -17,6 +17,10 @@ import { seedFeedbackData, getNextFeedbackNumber, HELPDESK_FAQS } from './server
 
 dotenv.config();
 
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://fake.supabase.co';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || 'fake';
+const supabase = createClient(supabaseUrl, supabaseKey);
+
 const app = express();
 const PORT = 3000;
 
