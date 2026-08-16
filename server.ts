@@ -1,7 +1,6 @@
 import express from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
-import { createServer as createViteServer } from 'vite';
 import { db } from './server/db.js';
 import { calculateStudentAnalytics, calculateTeacherAnalytics, calculateAdminAnalytics } from './server/analytics.js';
 import { generateStudentAIRecommendations, generateTeacherClassInsights, askAITutorCourseQuery } from './server/gemini.js';
@@ -4099,6 +4098,15 @@ app.get('/api/inquiries/:id', (req, res) => {
 // VITE MIDDLEWARE & SERVER STARTUP
 // ----------------------------------------------------
 
+app.use('/api', (req, res, next) => {
+  res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'API Endpoint not found.' } });
+});
+
+app.use('/api', (err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('[API Error]', err);
+  res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'An internal server error occurred.' } });
+});
+
 async function startServer() {
   // Sync academic course catalog and baseline structures
   try {
@@ -4109,6 +4117,7 @@ async function startServer() {
   }
 
   if (process.env.NODE_ENV !== 'production') {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
