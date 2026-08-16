@@ -45,7 +45,16 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     headers,
   });
 
-  const json = await response.json();
+  let json;
+  const text = await response.text();
+  try {
+    json = JSON.parse(text);
+  } catch (e) {
+    if (!response.ok) {
+      throw new Error(text || `HTTP Error ${response.status}`);
+    }
+    throw new Error('Invalid JSON response from server');
+  }
 
   if (!response.ok || !json.success) {
     throw new Error(json.error?.message || 'API request failed');
