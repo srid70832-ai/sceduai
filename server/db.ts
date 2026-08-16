@@ -34,7 +34,7 @@ export interface DBData {
   feedback: any[];
 }
 
-const DATA_DIR = path.join(process.cwd(), 'data');
+const DATA_DIR = process.env.VERCEL === '1' ? '/tmp/data' : path.join(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'edusense_db.json');
 
 function getInitialDB(): DBData {
