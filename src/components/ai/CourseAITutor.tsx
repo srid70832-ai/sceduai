@@ -60,7 +60,7 @@ export const CourseAITutor: React.FC<CourseAITutorProps> = ({
     return course.syllabus
       .split('\n')
       .map(s => s.trim())
-      .filter(s => s.length > 0 && (s.toLowerCase().startsWith('unit') || s.toLowerCase().startsWith('module')));
+      .filter(s => s.length > 0 && ((s || "").toLowerCase().startsWith('unit') || (s || "").toLowerCase().startsWith('module')));
   }, [course.syllabus]);
 
   // Initial welcome message per course

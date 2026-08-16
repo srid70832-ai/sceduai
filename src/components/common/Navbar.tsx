@@ -63,7 +63,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
             return (
               <button
                 key={link.path}
-                id={`nav-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                id={`nav-${(link.label || "").toLowerCase().replace(/\s+/g, '-')}`}
                 onClick={() => onNavigate(link.path)}
                 className={`relative px-4 py-2 rounded-xl transition-all duration-200 hover:text-white ${
                   isActive

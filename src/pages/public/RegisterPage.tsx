@@ -110,7 +110,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
         employee_code: role === 'TEACHER' ? formData.employee_code.trim() : undefined,
         major: formData.department,
       });
-      onNavigate(`/${role.toLowerCase()}/dashboard`);
+      onNavigate(`/${(role || "").toLowerCase()}/dashboard`);
     } catch {
       // Error handled by AuthContext
     }

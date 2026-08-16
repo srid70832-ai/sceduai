@@ -130,7 +130,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
   const getPortalTarget = (rolePath: string) => {
     if (!user) return '/login';
-    return `/${user.role.toLowerCase()}/dashboard`;
+    return `/${(user.role || "").toLowerCase()}/dashboard`;
   };
 
   return (
@@ -197,7 +197,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             {user ? (
               <motion.button
                 id="hero-btn-dashboard"
-                onClick={() => onNavigate(`/${user.role.toLowerCase()}/dashboard`)}
+                onClick={() => onNavigate(`/${(user.role || "").toLowerCase()}/dashboard`)}
                 whileHover={{ y: -2, scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-7 py-3.5 rounded-2xl shadow-lg shadow-indigo-500/25 transition-all text-sm cursor-pointer"

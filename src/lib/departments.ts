@@ -313,8 +313,8 @@ export const DEFAULT_DEPARTMENT = 'Artificial Intelligence and Data Science';
 export function getDepartmentByName(name: string): AcademicDepartment | undefined {
   return ACADEMIC_DEPARTMENTS.find(
     (d) =>
-      d.name.toLowerCase() === name.toLowerCase() ||
-      d.shortCode.toLowerCase() === name.toLowerCase() ||
+      (d.name || "").toLowerCase() === (name || "").toLowerCase() ||
+      (d.shortCode || "").toLowerCase() === (name || "").toLowerCase() ||
       (name === 'AI & DS' && d.id === 'ai-ds') ||
       (name === 'AI & ML' && d.id === 'ai-ml')
   );

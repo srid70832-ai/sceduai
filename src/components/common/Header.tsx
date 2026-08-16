@@ -150,7 +150,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileSidebar, title, su
         {/* User quick pill */}
         {user && (
           <div 
-            onClick={() => onNavigate?.(`/${user.role.toLowerCase()}/profile`)}
+            onClick={() => onNavigate?.(`/${(user.role || "").toLowerCase()}/profile`)}
             className="flex items-center gap-2.5 pl-3 border-l border-emerald-900/60 cursor-pointer hover:opacity-80 transition-opacity"
           >
             <div className="w-8 h-8 rounded-full bg-emerald-900/80 border border-emerald-700/50 flex items-center justify-center text-emerald-200 font-bold text-xs">

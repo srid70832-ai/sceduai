@@ -194,10 +194,10 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
 
   const filteredFaqs = faqs.filter(
     (f) =>
-      f.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      f.answer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      f.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      f.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()))
+      (f.question || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (f.answer || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (f.category || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      f.tags.some((t) => (t || "").toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   if (!isOpen) return null;

@@ -72,7 +72,7 @@ export const StudentAssignmentsPage: React.FC<StudentAssignmentsPageProps> = ({ 
       ) : filtered.length === 0 ? (
         <EmptyState
           title="No assignments found."
-          description={`There are currently no assignments matching the "${filter.toLowerCase()}" filter.`}
+          description={`There are currently no assignments matching the "${(filter || "").toLowerCase()}" filter.`}
           secondaryActionText="Load Sample Academic Dataset"
           onSecondaryAction={loadDemoData}
         />

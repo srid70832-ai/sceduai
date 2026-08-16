@@ -2,11 +2,12 @@ import crypto from 'crypto';
 import { execSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
-const syncHelperPath = path.join(process.cwd(), 'sync_fetch.js');
+const syncHelperPath = path.join(os.tmpdir(), 'sync_fetch.js');
 if (!fs.existsSync(syncHelperPath)) {
   fs.writeFileSync(syncHelperPath, `
     const args = process.argv.slice(2);

@@ -151,7 +151,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPath, onNavigate, isOpe
         {/* Navigation List */}
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1 scrollbar-thin scrollbar-thumb-slate-800">
           {currentNav.map((item) => {
-            const isActive = currentPath === item.path || (item.path !== `/${user.role.toLowerCase()}/dashboard` && currentPath.startsWith(item.path));
+            const isActive = currentPath === item.path || (item.path !== `/${(user.role || "").toLowerCase()}/dashboard` && currentPath.startsWith(item.path));
             return (
               <button
                 key={item.path}

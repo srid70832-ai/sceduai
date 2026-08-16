@@ -184,12 +184,12 @@ export const AdminFeedbackPage: React.FC = () => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
     return (
-      item.feedback_id.toLowerCase().includes(q) ||
+      (item.feedback_id || "").toLowerCase().includes(q) ||
       item.user_name?.toLowerCase().includes(q) ||
       item.user_email?.toLowerCase().includes(q) ||
-      item.subject.toLowerCase().includes(q) ||
-      item.description.toLowerCase().includes(q) ||
-      item.category.toLowerCase().includes(q)
+      (item.subject || "").toLowerCase().includes(q) ||
+      (item.description || "").toLowerCase().includes(q) ||
+      (item.category || "").toLowerCase().includes(q)
     );
   });
 

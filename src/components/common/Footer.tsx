@@ -25,13 +25,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const getStudentPortalPath = () => {
     if (!user) return '/login';
     if (user.role === 'STUDENT') return '/student/dashboard';
-    return `/${user.role.toLowerCase()}/dashboard`;
+    return `/${(user.role || "").toLowerCase()}/dashboard`;
   };
 
   const getTeacherPortalPath = () => {
     if (!user) return '/login';
     if (user.role === 'TEACHER') return '/teacher/dashboard';
-    return `/${user.role.toLowerCase()}/dashboard`;
+    return `/${(user.role || "").toLowerCase()}/dashboard`;
   };
 
   const getAcademicProgressPath = () => {

@@ -88,10 +88,10 @@ export const StudentFeedbackPage: React.FC<StudentFeedbackPageProps> = ({ onNavi
 
   const filteredFeedbacks = feedbacks.filter((item) => {
     const matchesSearch =
-      item.feedback_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchQuery.toLowerCase());
+      (item.feedback_id || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.subject || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.description || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.category || "").toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesStatus = statusFilter === 'ALL' || item.status === statusFilter;
 

@@ -169,6 +169,12 @@ export const SCEduAIChatbot: React.FC = () => {
 
       recognition.onend = () => {
         setIsListening(false);
+        setSpeechTranscript((currentTranscript) => {
+          if (currentTranscript) {
+            setInputMessage((prev) => (prev ? `${prev} ${currentTranscript}` : currentTranscript));
+          }
+          return '';
+        });
       };
 
       recognitionRef.current = recognition;
@@ -744,7 +750,7 @@ export const SCEduAIChatbot: React.FC = () => {
             e.preventDefault();
             handleSendMessage();
           }}
-          className="flex items-center gap-2 sm:gap-3"
+          className="flex items-end gap-2 sm:gap-3"
         >
           {/* Microphone Button - Perfectly Vertically Centered */}
           <button
