@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import express from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
@@ -59,6 +60,21 @@ function validatePasswordStrength(pwd: string): { valid: boolean; error?: string
     return { valid: false, error: 'Password must contain at least one number (0-9).' };
   }
   return { valid: true };
+}
+
+function hashPassword(password: string): string {
+  return crypto.createHash('sha256').update(password.trim()).digest('hex');
+}
+
+function verifyPassword(password: string, hash: string | null | undefined): boolean {
+  if (!hash) return false;
+  return hashPassword(password) === hash;
+}
+
+function sanitizeProfile(profile: any) {
+  if (!profile) return null;
+  const { password_hash, ...safeProfile } = profile;
+  return safeProfile;
 }
 
 // In-memory token store for password resets
@@ -129,7 +145,8 @@ app.post('/api/auth/register', (req, res) => {
     email: email.toLowerCase(),
     role,
     department: selectedDepartment,
-    avatar_url: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256`
+    avatar_url: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256`,
+    password_hash: hashPassword(password)
   });
 
   let student = null;
@@ -160,7 +177,7 @@ app.post('/api/auth/register', (req, res) => {
   res.json({
     success: true,
     data: {
-      user: profile,
+      user: sanitizeProfile(profile),
       student,
       teacher,
       token: profile.id
@@ -174,7 +191,7 @@ app.post('/api/auth/forgot-password', (req, res) => {
     return res.status(400).json({ success: false, error: { code: 'INVALID_INPUT', message: 'Email address is required.' } });
   }
 
-  const profile = db.find('profiles', (p) => p.email.toLowerCase() === email.toLowerCase())[0];
+  const profile = db.find('profiles', (p) => p.email.toLowerCase() === String(email).toLowerCase())[0];
   if (!profile) {
     return res.status(404).json({ success: false, error: { code: 'USER_NOT_FOUND', message: 'No registered account found with this email address.' } });
   }
@@ -212,13 +229,17 @@ app.post('/api/auth/reset-password', (req, res) => {
     return res.status(400).json({ success: false, error: { code: 'WEAK_PASSWORD', message: pwdCheck.error } });
   }
 
-  const profile = db.find('profiles', (p) => p.email.toLowerCase() === email.toLowerCase())[0];
+  const profile = db.find('profiles', (p) => p.email.toLowerCase() === String(email).toLowerCase())[0];
   if (!profile) {
     return res.status(404).json({ success: false, error: { code: 'USER_NOT_FOUND', message: 'User profile not found.' } });
   }
 
+  const updatedProfile = db.update('profiles', profile.id, {
+    password_hash: hashPassword(String(new_password))
+  }) || profile;
+
   passwordResetTokens.delete(reset_token);
-  db.logAudit('PASSWORD_RESET_COMPLETED', 'profile', profile.id, profile.email, profile.id);
+  db.logAudit('PASSWORD_RESET_COMPLETED', 'profile', updatedProfile.id, updatedProfile.email, updatedProfile.id);
 
   res.json({
     success: true,
@@ -230,12 +251,17 @@ app.post('/api/auth/reset-password', (req, res) => {
 
 app.post('/api/auth/login', (req, res) => {
   const { email, password } = req.body;
-  if (!email) {
-    return res.status(400).json({ success: false, error: { code: 'INVALID_INPUT', message: 'Email address is required.' } });
+  if (!email || !password) {
+    return res.status(400).json({ success: false, error: { code: 'INVALID_INPUT', message: 'Email and password are required.' } });
   }
 
-  const profile = db.find('profiles', (p) => p.email.toLowerCase() === email.toLowerCase())[0];
+  const profile = db.find('profiles', (p) => p.email.toLowerCase() === String(email).toLowerCase())[0];
   if (!profile) {
+    return res.status(401).json({ success: false, error: { code: 'AUTH_FAILED', message: 'Invalid credentials or user does not exist in database.' } });
+  }
+
+  const passwordHash = profile.password_hash || null;
+  if (!verifyPassword(String(password), passwordHash)) {
     return res.status(401).json({ success: false, error: { code: 'AUTH_FAILED', message: 'Invalid credentials or user does not exist in database.' } });
   }
 
@@ -248,7 +274,7 @@ app.post('/api/auth/login', (req, res) => {
   res.json({
     success: true,
     data: {
-      user: profile,
+      user: sanitizeProfile(profile),
       student,
       teacher,
       admin,
@@ -265,7 +291,7 @@ app.get('/api/auth/me', (req, res) => {
   res.json({
     success: true,
     data: {
-      user: auth.profile,
+      user: sanitizeProfile(auth.profile),
       student: auth.student,
       teacher: auth.teacher,
       admin: auth.admin,
@@ -289,7 +315,7 @@ app.post('/api/auth/quick-switch', (req, res) => {
   res.json({
     success: true,
     data: {
-      user: profile,
+      user: sanitizeProfile(profile),
       student,
       teacher,
       admin,
