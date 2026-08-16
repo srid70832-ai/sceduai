@@ -1,58 +1,46 @@
 import crypto from 'crypto';
-import { execFileSync } from 'child_process';
+
 import path from 'path';
 import fs from 'fs';
-import os from 'os';
+
 
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
-const syncHelperPath = path.join(os.tmpdir(), 'sync_fetch.js');
-try {
-  if (!fs.existsSync(syncHelperPath)) {
-    fs.writeFileSync(syncHelperPath, `
-      const args = process.argv.slice(2);
-      const url = args[0];
-      const method = args[1];
-      const key = args[2];
-      const bodyStr = args[3];
-      
-      fetch(url, {
-        method,
-        headers: {
-          'apikey': key,
-          'Authorization': 'Bearer ' + key,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=representation'
-        },
-        body: bodyStr ? bodyStr : undefined
-      })
-      .then(r => r.text())
-      .then(t => { console.log(t); process.exit(0); })
-      .catch(e => { console.error(e); process.exit(1); });
-    `);
-  }
-} catch (e) {
-  console.error('Failed to write sync_fetch.js:', e);
-}
+
+
+
+import request from 'sync-request';
 
 function syncSupabase(method: string, route: string, body?: any): any {
   if (!supabaseUrl || !supabaseKey) return null;
   const url = `${supabaseUrl}/rest/v1/${route}`;
-  const bodyStr = body ? JSON.stringify(body) : '';
   
   try {
-    const output = execFileSync(process.execPath, [syncHelperPath, url, method, supabaseKey, bodyStr], { 
-      encoding: 'utf-8', 
-      stdio: ['pipe', 'pipe', 'pipe'] 
+    const res = request(method as any, url, {
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': 'Bearer ' + supabaseKey,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      json: body ? body : undefined
     });
+    
+    if (res.statusCode >= 400) {
+      console.error('syncSupabase HTTP Error:', res.statusCode, res.getBody('utf8'));
+      return null;
+    }
+    
+    const output = res.getBody('utf8');
     if (!output) return null;
-    return JSON.parse(output.trim());
+    return JSON.parse(output);
   } catch (e: any) {
-    console.error('syncSupabase error:', e.message, e.stderr?.toString());
+    console.error('syncSupabase error:', e.message);
     return null;
   }
 }
+
 
 class Database {
   public generateId(): string {
