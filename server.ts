@@ -71,6 +71,16 @@ function verifyPassword(password: string, hash: string | null | undefined): bool
   return hashPassword(password) === hash;
 }
 
+function toSafeString(value: unknown): string {
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value).trim();
+  return '';
+}
+
+function toSafeLower(value: unknown): string {
+  return toSafeString(value).toLowerCase();
+}
+
 function sanitizeProfile(profile: any) {
   if (!profile) return null;
   const { password_hash, ...safeProfile } = profile;
@@ -105,7 +115,7 @@ app.post('/api/auth/register', (req, res) => {
       return res.status(400).json({ success: false, error: { code: 'INVALID_INPUT', message: 'Student Roll Number is required for student registration.' } });
     }
     const cleanRoll = roll_number.trim();
-    const existingStudent = db.find('students', (s) => s.roll_number && s.roll_number.toLowerCase() === cleanRoll.toLowerCase())[0];
+    const existingStudent = db.find('students', (s) => toSafeLower(s.roll_number) === cleanRoll.toLowerCase())[0];
     if (existingStudent) {
       return res.status(400).json({ success: false, error: { code: 'ROLL_NUMBER_EXISTS', message: 'This student roll number is already registered.' } });
     }
@@ -117,7 +127,7 @@ app.post('/api/auth/register', (req, res) => {
       return res.status(400).json({ success: false, error: { code: 'INVALID_INPUT', message: 'Faculty Employee Code is required for teacher registration.' } });
     }
     const cleanCode = employee_code.trim();
-    const existingTeacher = db.find('teachers', (t) => t.employee_code && t.employee_code.toLowerCase() === cleanCode.toLowerCase())[0];
+    const existingTeacher = db.find('teachers', (t) => toSafeLower(t.employee_code) === cleanCode.toLowerCase())[0];
     if (existingTeacher) {
       return res.status(400).json({ success: false, error: { code: 'EMPLOYEE_CODE_EXISTS', message: 'This faculty / employee ID is already registered.' } });
     }
@@ -131,7 +141,8 @@ app.post('/api/auth/register', (req, res) => {
     }
   }
 
-  const existing = db.find('profiles', (p) => p.email.toLowerCase() === email.toLowerCase())[0];
+  const normalizedEmail = toSafeLower(email);
+  const existing = db.find('profiles', (p) => toSafeLower(p.email) === normalizedEmail)[0];
   if (existing) {
     return res.status(400).json({ success: false, error: { code: 'EMAIL_EXISTS', message: 'An account with this email address already exists.' } });
   }
@@ -142,7 +153,7 @@ app.post('/api/auth/register', (req, res) => {
   const profile = db.insert('profiles', {
     auth_user_id,
     full_name,
-    email: email.toLowerCase(),
+    email: normalizedEmail,
     role,
     department: selectedDepartment,
     avatar_url: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256`,
@@ -187,11 +198,12 @@ app.post('/api/auth/register', (req, res) => {
 
 app.post('/api/auth/forgot-password', (req, res) => {
   const { email } = req.body;
-  if (!email) {
+  const normalizedEmail = toSafeLower(email);
+  if (!normalizedEmail) {
     return res.status(400).json({ success: false, error: { code: 'INVALID_INPUT', message: 'Email address is required.' } });
   }
 
-  const profile = db.find('profiles', (p) => p.email.toLowerCase() === String(email).toLowerCase())[0];
+  const profile = db.find('profiles', (p) => toSafeLower(p.email) === normalizedEmail)[0];
   if (!profile) {
     return res.status(404).json({ success: false, error: { code: 'USER_NOT_FOUND', message: 'No registered account found with this email address.' } });
   }
@@ -199,7 +211,7 @@ app.post('/api/auth/forgot-password', (req, res) => {
   // Generate 6-digit or hex reset code
   const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
   const expiresAt = Date.now() + 15 * 60 * 1000; // 15 minutes validity
-  passwordResetTokens.set(resetToken, { email: profile.email.toLowerCase(), expiresAt });
+  passwordResetTokens.set(resetToken, { email: normalizedEmail, expiresAt });
 
   db.logAudit('PASSWORD_RESET_REQUESTED', 'profile', profile.id, profile.email, profile.id);
 
@@ -215,12 +227,13 @@ app.post('/api/auth/forgot-password', (req, res) => {
 
 app.post('/api/auth/reset-password', (req, res) => {
   const { email, reset_token, new_password } = req.body;
-  if (!email || !reset_token || !new_password) {
+  const normalizedEmail = toSafeLower(email);
+  if (!normalizedEmail || !reset_token || !new_password) {
     return res.status(400).json({ success: false, error: { code: 'INVALID_INPUT', message: 'Email, reset token, and new password are required.' } });
   }
 
   const tokenData = passwordResetTokens.get(reset_token);
-  if (!tokenData || tokenData.email !== email.toLowerCase() || Date.now() > tokenData.expiresAt) {
+  if (!tokenData || tokenData.email !== normalizedEmail || Date.now() > tokenData.expiresAt) {
     return res.status(400).json({ success: false, error: { code: 'INVALID_TOKEN', message: 'Invalid or expired password reset token. Please request a new link.' } });
   }
 
@@ -229,7 +242,7 @@ app.post('/api/auth/reset-password', (req, res) => {
     return res.status(400).json({ success: false, error: { code: 'WEAK_PASSWORD', message: pwdCheck.error } });
   }
 
-  const profile = db.find('profiles', (p) => p.email.toLowerCase() === String(email).toLowerCase())[0];
+  const profile = db.find('profiles', (p) => toSafeLower(p.email) === normalizedEmail)[0];
   if (!profile) {
     return res.status(404).json({ success: false, error: { code: 'USER_NOT_FOUND', message: 'User profile not found.' } });
   }
@@ -251,11 +264,12 @@ app.post('/api/auth/reset-password', (req, res) => {
 
 app.post('/api/auth/login', (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password) {
+  const normalizedEmail = toSafeLower(email);
+  if (!normalizedEmail || !password) {
     return res.status(400).json({ success: false, error: { code: 'INVALID_INPUT', message: 'Email and password are required.' } });
   }
 
-  const profile = db.find('profiles', (p) => p.email.toLowerCase() === String(email).toLowerCase())[0];
+  const profile = db.find('profiles', (p) => toSafeLower(p.email) === normalizedEmail)[0];
   if (!profile) {
     return res.status(401).json({ success: false, error: { code: 'AUTH_FAILED', message: 'Invalid credentials or user does not exist in database.' } });
   }
