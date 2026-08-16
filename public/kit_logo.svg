@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" fill="none">
+  <defs>
+    <linearGradient id="kitMaroon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#9F1239" />
+      <stop offset="100%" stopColor="#881337" />
+    </linearGradient>
+    <linearGradient id="kitGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#F59E0B" />
+      <stop offset="100%" stopColor="#D97706" />
+    </linearGradient>
+  </defs>
+
+  {/* Emblem Shield / Crest */}
+  <g transform="translate(10, 10)">
+    {/* Shield Outer */}
+    <path d="M 40 4 L 72 16 L 72 48 C 72 68 40 76 40 76 C 40 76 8 68 8 48 L 8 16 Z" fill="url(#kitMaroon)" stroke="url(#kitGold)" stroke-width="2.5" />
+    {/* Shield Inner Inset */}
+    <path d="M 40 10 L 66 20 L 66 46 C 66 62 40 70 40 70 C 40 70 14 62 14 46 L 14 20 Z" fill="#FFFFFF" opacity="0.08" />
+    
+    {/* Lamp / Flame of Knowledge */}
+    <path d="M 40 22 C 37 28 35 32 35 36 C 35 39 37 42 40 42 C 43 42 45 39 45 36 C 45 32 43 28 40 22 Z" fill="url(#kitGold)" />
+    {/* Open Book Base */}
+    <path d="M 26 48 C 33 46 38 47 40 49 C 42 47 47 46 54 48 L 54 55 C 47 53 42 54 40 56 C 38 54 33 53 26 55 Z" fill="#F8FAFC" />
+    <path d="M 39.5 49 L 39.5 56" stroke="#9F1239" stroke-width="1" />
+    
+    {/* Gear / Technology Element */}
+    <circle cx="40" cy="62" r="4" fill="none" stroke="url(#kitGold)" stroke-width="1.5" stroke-dasharray="2 1.5" />
+  </g>
+
+  {/* Typography */}
+  <g transform="translate(98, 20)">
+    {/* Acronym KIT */}
+    <text x="0" y="24" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="900" font-size="26" fill="#881337" letter-spacing="1">
+      KIT
+    </text>
+    
+    {/* Full Name */}
+    <text x="56" y="16" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="800" font-size="13" fill="#0F172A" letter-spacing="0.2">
+      KALAIGNARKARUNANIDHI
+    </text>
+    <text x="56" y="30" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="700" font-size="11" fill="#475569" letter-spacing="0.5">
+      INSTITUTE OF TECHNOLOGY
+    </text>
+    
+    {/* Subtitle / Accreditation */}
+    <text x="0" y="52" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="600" font-size="9.5" fill="#64748B" letter-spacing="0.3">
+      AUTONOMOUS INSTITUTION • COIMBATORE, TAMIL NADU
+    </text>
+    <text x="0" y="65" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="500" font-size="8.5" fill="#D97706">
+      Approved by AICTE • Affiliated to Anna University • Accredited by NAAC 'A' Grade &amp; NBA
+    </text>
+  </g>
+</svg>

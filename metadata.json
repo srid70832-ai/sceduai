@@ -1,0 +1,6 @@
+{
+  "name": "SC EduSense AI",
+  "description": "AI-powered Education Management & Academic Intelligence Platform for students, teachers, and administrators.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
